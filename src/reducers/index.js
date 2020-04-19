@@ -15,7 +15,7 @@ export default function tasks(state = initialState, action) {
     case 'FETCH_TASKS_SUCCEEDED': {
       return {
         ...state,
-        tasks: action.payload.tasks,
+        tasks: action.payload,
         isLoading: false,
       };
     }
@@ -29,7 +29,7 @@ export default function tasks(state = initialState, action) {
     case 'CREATE_TASK_SUCCEEDED': {
       return {
         ...state,
-        tasks: state.tasks.concat(action.payload.task),
+        tasks: state.tasks.concat(action.payload),
       };
     }
     case 'EDIT_TASK_SUCCEEDED': {
