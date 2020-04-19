@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import TasksPage from './components/TasksPage';
-import { createTask, editTask } from './actions';
+import FlashMessage from './components/FlashMessage';
+import { createTask, editTask, fetchTasks } from './actions';
 
 class App extends Component {
+  componentDidMount() {
+    this.props.dispatch(fetchTasks());
+  }
+
   onCreateTask = ({ title, description }) => {
     this.props.dispatch(createTask({ title, description }));
   };
@@ -14,21 +19,24 @@ class App extends Component {
 
   render() {
     return (
-      <div className="main-content">
-        <TasksPage
-          tasks={this.props.tasks}
-          onCreateTask={this.onCreateTask}
-          onStatusChange={this.onStatusChange}
-        />
+      <div className="container">
+        {this.props.error && <FlashMessage message={this.props.error} />}
+        <div className="main-content">
+          <TasksPage
+            tasks={this.props.tasks}
+            onCreateTask={this.onCreateTask}
+            onStatusChange={this.onStatusChange}
+            isLoading={this.props.isLoading}
+          />
+        </div>
       </div>
     );
   }
 }
 
 function mapStateToProps(state) {
-  return {
-    tasks: state.tasks,
-  };
+  const { tasks, isLoading, error } = state.tasks;
+  return { tasks, isLoading, error };
 }
 
 export default connect(mapStateToProps)(App);
