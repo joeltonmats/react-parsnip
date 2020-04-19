@@ -1,36 +1,44 @@
-import registerServiceWorker from "./registerServiceWorker";
+import registerServiceWorker from './registerServiceWorker';
 
-import React from "react";
-import ReactDOM from "react-dom";
-import { createStore } from "redux";
-import { Provider } from "react-redux";
-import { devToolsEnhancer } from "redux-devtools-extension";
-import tasks from "./reducers";
-import App from "./App";
-import "./index.css";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import { Provider } from 'react-redux';
+import { composeWithDevTools } from 'redux-devtools-extension';
+import tasksReducer from './reducers';
+import App from './App';
+import './index.css';
 
-const store = createStore(tasks, devToolsEnhancer());
+const rootReducer = (state = {}, action) => {
+  return {
+    tasks: tasksReducer(state.tasks, action),
+  };
+};
+
+const store = createStore(
+  rootReducer,
+  composeWithDevTools(applyMiddleware(thunk))
+);
 
 ReactDOM.render(
   <Provider store={store}>
     <App />
   </Provider>,
-  document.getElementById("root")
+  document.getElementById('root')
 );
 
 if (module.hot) {
-  module.hot.accept("./App", () => {
-    const NextApp = require("./App").default;
+  module.hot.accept('./App', () => {
+    const NextApp = require('./App').default;
     ReactDOM.render(
-      <Provider store={store}>
-        <NextApp />
-      </Provider>,
-      document.getElementById("root")
+      <Provider store={store}><NextApp /></Provider>,
+      document.getElementById('root')
     );
   });
 
-  module.hot.accept("./reducers", () => {
-    const nextRootReducer = require("./reducers").default;
+  module.hot.accept('./reducers', () => {
+    const nextRootReducer = require('./reducers').default;
     store.replaceReducer(nextRootReducer);
   });
 }
