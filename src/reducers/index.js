@@ -15,7 +15,7 @@ export default function tasks(state = initialState, action) {
     case 'FETCH_TASKS_SUCCEEDED': {
       return {
         ...state,
-        tasks: action.payload,
+        tasks: action.payload.tasks,
         isLoading: false,
       };
     }
@@ -29,7 +29,7 @@ export default function tasks(state = initialState, action) {
     case 'CREATE_TASK_SUCCEEDED': {
       return {
         ...state,
-        tasks: state.tasks.concat(action.payload),
+        tasks: state.tasks.concat(action.payload.task),
       };
     }
     case 'EDIT_TASK_SUCCEEDED': {
@@ -37,6 +37,19 @@ export default function tasks(state = initialState, action) {
       const nextTasks = state.tasks.map(task => {
         if (task.id === payload.task.id) {
           return payload.task;
+        }
+
+        return task;
+      });
+      return {
+        ...state,
+        tasks: nextTasks,
+      };
+    }
+    case 'TIMER_INCREMENT': {
+      const nextTasks = state.tasks.map(task => {
+        if (task.id === action.payload.taskId) {
+          return { ...task, timer: task.timer + 1 };
         }
 
         return task;
