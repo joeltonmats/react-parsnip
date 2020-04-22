@@ -1,5 +1,6 @@
 import * as api from '../api';
 import { normalize, schema } from 'normalizr';
+import { batchActions } from 'redux-batched-actions';
 
 export const SET_CURRENT_PROJECT_ID = 'SET_CURRENT_PROJECT_ID';
 export function setCurrentProjectId(id) {
@@ -44,13 +45,12 @@ export function fetchProjects() {
 
         const normalizedData = normalize(projects, [projectSchema]);
 
-        dispatch(receiveEntities(normalizedData));
-
-        // Pick a board to show on initial page load
-        if (!getState().page.currentProjectId) {
-          const defaultProjectId = projects[0].id;
-          dispatch(setCurrentProjectId(defaultProjectId));
-        }
+        dispatch(
+          batchActions([
+            receiveEntities(normalizedData),
+            setCurrentProjectId(projects[0].id),
+          ])
+        );
       })
       .catch(err => {
         fetchProjectsFailed(err);
@@ -71,6 +71,10 @@ export function fetchTasksSucceeded() {
   };
 }
 
+// Oh right, this was left over, we still haven't done any better connection
+//   can possibly do that for caching tasks?
+//   fetch tasks on each page
+//   when switching, can avoid refetching
 export function fetchTasks(boardId) {
   return dispatch => {
     return api.fetchTasks(boardId).then(resp => {

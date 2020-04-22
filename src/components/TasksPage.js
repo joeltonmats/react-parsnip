@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import TaskList from './TaskList';
+import { createTask, editTask, filterTasks } from '../actions';
+import { getGroupedAndFilteredTaskIds } from '../reducers';
 
 class TasksPage extends Component {
   constructor(props) {
@@ -27,39 +31,46 @@ class TasksPage extends Component {
     });
   }
 
-  onCreateTask = e => {
-    e.preventDefault();
-    this.props.onCreateTask({
-      title: this.state.title,
-      description: this.state.description,
-    });
-    this.resetForm();
-  };
-
   toggleForm = () => {
     this.setState({ showNewCardForm: !this.state.showNewCardForm });
   };
 
-  renderTaskLists() {
-    const { onStatusChange, tasks } = this.props;
+  onCreateTask = e => {
+    e.preventDefault();
 
-    return Object.keys(tasks).map(status => {
-      const tasksByStatus = tasks[status];
+    this.props.createTask({
+      title: this.state.title,
+      description: this.state.description,
+      projectId: this.props.currentProjectId,
+    });
+
+    this.resetForm();
+  };
+
+  onSearch = e => {
+    this.props.onSearch(e.target.value);
+  };
+
+  onStatusChange = (task, status) => {
+    this.props.editTask(task, { status });
+  };
+
+  renderTaskLists() {
+    const { taskIds } = this.props;
+
+    return Object.keys(taskIds).map(status => {
+      const idsByStatus = taskIds[status];
 
       return (
         <TaskList
           key={status}
           status={status}
-          tasks={tasksByStatus}
-          onStatusChange={onStatusChange}
+          taskIds={idsByStatus}
+          onStatusChange={this.onStatusChange}
         />
       );
     });
   }
-
-  onSearch = e => {
-    this.props.onSearch(e.target.value);
-  };
 
   render() {
     if (this.props.isLoading) {
@@ -96,12 +107,31 @@ class TasksPage extends Component {
             </button>
           </form>}
 
-        <div className="task-lists">
-          {this.renderTaskLists()}
-        </div>
+        <div className="task-lists">{this.renderTaskLists()}</div>
       </div>
     );
   }
 }
 
-export default TasksPage;
+function mapStateToProps(state) {
+  const { isLoading } = state.projects;
+
+  return {
+    taskIds: getGroupedAndFilteredTaskIds(state),
+    currentProjectId: state.page.currentProjectId,
+    isLoading,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators(
+    {
+      onSearch: filterTasks,
+      createTask,
+      editTask,
+    },
+    dispatch
+  );
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(TasksPage);

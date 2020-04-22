@@ -11,6 +11,7 @@ import { projects, tasks, page } from './reducers';
 import App from './App';
 import rootSaga from './sagas';
 import './index.css';
+import { enableBatching } from 'redux-batched-actions';
 
 const rootReducer = (state = {}, action) => {
   return {
@@ -23,8 +24,8 @@ const rootReducer = (state = {}, action) => {
 const sagaMiddleware = createSagaMiddleware();
 
 const store = createStore(
-  rootReducer,
-  composeWithDevTools(applyMiddleware(thunk, sagaMiddleware)),
+  enableBatching(rootReducer),
+  composeWithDevTools(applyMiddleware(thunk, sagaMiddleware))
 );
 
 sagaMiddleware.run(rootSaga);
@@ -33,7 +34,7 @@ ReactDOM.render(
   <Provider store={store}>
     <App />
   </Provider>,
-  document.getElementById('root'),
+  document.getElementById('root')
 );
 
 if (module.hot) {
@@ -43,7 +44,7 @@ if (module.hot) {
       <Provider store={store}>
         <NextApp />
       </Provider>,
-      document.getElementById('root'),
+      document.getElementById('root')
     );
   });
 
