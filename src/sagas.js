@@ -23,7 +23,7 @@ function* takeLatestById(actionType, saga) {
   }
 }
 
-function* handleProgressTimer({ type, payload }) {
+export function* handleProgressTimer({ type, payload }) {
   if (type === 'TIMER_STARTED') {
     while (true) {
       yield call(delay, 1000);
