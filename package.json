@@ -1,6 +1,6 @@
 {
-  "name": "parsnip-ch8",
-  "version": "0.1.0",
+  "name": "parsnip",
+  "version": "0.9.0",
   "private": true,
   "dependencies": {
     "axios": "^0.17.1",
